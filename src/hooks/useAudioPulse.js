@@ -1,70 +1,74 @@
-import { useEffect, useRef, useState } from "react"
+import { useState, useEffect, useRef } from "react";
 
 export default function useAudioPulse(audioRef) {
-  const [pulse, setPulse] = useState(0)
-
-  const analyserRef = useRef(null)
-  const dataRef = useRef(null)
-  const rafRef = useRef(null)
-
-  const lastBeatRef = useRef(0)
-  const energyRef = useRef(0)
+  const [pulse, setPulse] = useState(0);
+  const analyserRef = useRef(null);
+  const dataArrayRef = useRef(null);
+  const animationRef = useRef(null);
+  const lastPulse = useRef(0); // Para suavizar a queda do pulso
 
   useEffect(() => {
-    if (!audioRef?.current) return
+    const update = () => {
+      if (analyserRef.current && dataArrayRef.current) {
+        analyserRef.current.getByteFrequencyData(dataArrayRef.current);
 
-    const audio = audioRef.current
-    const ctx = new (window.AudioContext || window.webkitAudioContext)()
+        // 1. FOCO NOS GRAVES (BASS)
+        // Pegamos apenas as primeiras barras da análise (frequências baixas)
+        // Isso isola o bumbo (kick) e o baixo da música.
+        let bassSum = 0;
+        const bassBins = 4; // Analisamos apenas as 4 primeiras frequências
+        for (let i = 0; i < bassBins; i++) {
+          bassSum += dataArrayRef.current[i];
+        }
+        const bassAvg = bassSum / bassBins;
 
-    const source = ctx.createMediaElementSource(audio)
-    const analyser = ctx.createAnalyser()
+        // 2. SENSIBILIDADE E NORMALIZAÇÃO
+        // Convertemos para 0 a 1 e damos um "boost" na sensibilidade
+        let targetPulse = (bassAvg / 255) * 1.2; 
+        if (targetPulse > 1) targetPulse = 1;
 
-    analyser.fftSize = 512
-    analyser.smoothingTimeConstant = 0.6
+        // 3. SUAVIZAÇÃO (SMOOTHING)
+        // Se o novo pulso for maior que o anterior, ele sobe rápido (ataque).
+        // Se for menor, ele desce devagar (decay), evitando o efeito "tremido".
+        if (targetPulse > lastPulse.current) {
+          lastPulse.current = targetPulse;
+        } else {
+          lastPulse.current *= 0.85; // Controla a velocidade da queda (suavidade)
+        }
 
-    const bufferLength = analyser.frequencyBinCount
-    const dataArray = new Uint8Array(bufferLength)
-
-    source.connect(analyser)
-    analyser.connect(ctx.destination)
-
-    analyserRef.current = analyser
-    dataRef.current = dataArray
-
-    const tick = () => {
-      rafRef.current = requestAnimationFrame(tick)
-
-      analyser.getByteFrequencyData(dataArray)
-
-      // 🔥 SUB-GRAVES (kick)
-      const bassBins = dataArray.slice(1, 12)
-      const bassEnergy =
-        bassBins.reduce((a, b) => a + b, 0) / bassBins.length
-
-      // normaliza
-      const normalized = bassEnergy / 255
-
-      // pico (beat)
-      if (normalized > lastBeatRef.current * 1.15 && normalized > 0.25) {
-        energyRef.current = 1
+        setPulse(lastPulse.current);
       }
+      animationRef.current = requestAnimationFrame(update);
+    };
 
-      lastBeatRef.current =
-        lastBeatRef.current * 0.9 + normalized * 0.1
+    const setup = () => {
+      if (!audioRef.current || analyserRef.current) return;
+      
+      const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      const source = audioContext.createMediaElementSource(audioRef.current);
+      const analyser = audioContext.createAnalyser();
+      
+      // fftSize 128 ou 256 dá uma precisão melhor para graves
+      analyser.fftSize = 128; 
+      analyser.smoothingTimeConstant = 0.4; // Ajuda o próprio analyser a ser menos brusco
 
-      // decay suave
-      energyRef.current *= 0.85
+      source.connect(analyser);
+      analyser.connect(audioContext.destination);
 
-      setPulse(energyRef.current)
-    }
+      analyserRef.current = analyser;
+      dataArrayRef.current = new Uint8Array(analyser.frequencyBinCount);
+      update();
+    };
 
-    tick()
+    window.addEventListener("click", setup, { once: true });
+    window.addEventListener("touchstart", setup, { once: true });
 
     return () => {
-      cancelAnimationFrame(rafRef.current)
-      ctx.close()
-    }
-  }, [audioRef])
+      cancelAnimationFrame(animationRef.current);
+      window.removeEventListener("click", setup);
+      window.removeEventListener("touchstart", setup);
+    };
+  }, [audioRef]);
 
-  return pulse
+  return pulse;
 }

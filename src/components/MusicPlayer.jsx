@@ -1,23 +1,37 @@
 import { useRef, useState, useEffect, useCallback } from "react";
 import "./MusicPlayer.css";
 
+import mute from "../assets/mute.svg"
+import next from "../assets/next.svg"
+import play from "../assets/play.svg"
+import prev from "../assets/prev.svg"
+import repeatIcon from "../assets/repeat.svg"
+import pause from "../assets/pause.svg"
+import minimizebtn from "../assets/minimizebtn.svg"
+import expandbtn from "../assets/expandbtn.svg"
 
 import useAudioPulse from "../hooks/useAudioPulse"
 
 
 const playlist = [
-  { title: "escape", file: "/music/escape.mp3" },
+  { title: "wave", file: "/music/Wave.mp3" },
   { title: "suas linhas", file: "/music/suaslinhas.mp3" },
   { title: "light", file: "/music/light.mp3" },
   { title: "good days", file: "/music/gooddays.mp3" },
+  { title: "escape", file: "/music/escape.mp3" },
   { title: "nervous", file: "/music/nervous.mp3" },
   { title: "over 85", file: "/music/over85.mp3" },
-  { title: "tainted", file: "/music/tainted.mp3" },
+  { title: "te vivo", file: "/music/tevivo.mp3" },
   { title: "snooze", file: "/music/snooze.mp3" },
-  { title: "mine", file: "/music/mine.mp3" },
   { title: "butterflies", file: "/music/butterflies.mp3" },
-  { title: "after hours", file: "/music/afterhours.mp3" },
   { title: "saturn", file: "/music/Saturn.mp3" },
+  { title: "somebody", file: "/music/SOMEBODY.mp3" },
+  { title: "my obsession", file: "/music/myobsession.mp3" },
+  { title: "mine", file: "/music/mine.mp3" },
+  { title: "tainted", file: "/music/tainted.mp3" },
+  { title: "paraíso", file: "/music/paraiso.mp3" },
+  { title: "um amor puro", file: "/music/umamorpuro.mp3" },
+  { title: "after hours", file: "/music/afterhours.mp3" },
 ]
 
 
@@ -97,6 +111,7 @@ export default function MusicPlayer() {
 
   /* ---------------- CONTROLS ---------------- */
 
+
   const playNext = useCallback(() => {
   if (isTransitioning.current) return;
   isTransitioning.current = true;
@@ -144,11 +159,11 @@ const playPrev = () => {
     setPlaying(!playing);
   };
 
-  const restart = () => {
-    audioRef.current.currentTime = 0;
-    audioRef.current.play();
-    setPlaying(true);
-  };
+  // const restart = () => {
+  //   audioRef.current.currentTime = 0;
+  //   audioRef.current.play();
+  //   setPlaying(true);
+  // };
 
   const toggleMute = () => {
     if (!muted) {
@@ -236,11 +251,13 @@ const playPrev = () => {
       <div
         className="music-glow"
         style={{
-          opacity: pulse,
           boxShadow: `
-            0 0 ${30 + pulse * 60}px rgba(138,92,255,0.6),
-            inset 0 0 ${20 + pulse * 40}px rgba(0,255,213,0.4)
-          `
+          0 0 ${2 + pulse * 10}px rgba(255, 230, 0, ${0.3 + pulse * 0.7}), /* Amarelo Interno */
+          0 0 ${3 + pulse * 70}px rgba(0, 110, 255, ${0.2 + pulse * 0.6})  /* Azul Externo */
+          `,
+          border: `${1 + pulse * 2}px solid rgba(255, 255, 255, ${0.1 + pulse * 0.4})`,
+          opacity: 0.6 + pulse * 0.4,
+          transform: `scale(${1 + pulse * 0.003})`,
         }}
       />
       <div
@@ -257,7 +274,7 @@ const playPrev = () => {
           onClick={() => setMinimized(!minimized)}
           title={minimized ? "Expandir" : "Minimizar"}
         >
-          {minimized ? "🔼" : "🔽"}
+          {minimized ? <img src={expandbtn} alt="Expandir" className="icon-white" /> : <img src={minimizebtn} alt="Minimizar" className="icon-white" />}
         </button>
       </div>
 
@@ -283,28 +300,42 @@ const playPrev = () => {
             </div>  
       <div className="controls">
         {/* Botão Anterior */}
-        <button onClick={playPrev} title="Anterior">⏮</button>
-        {/* <button onClick={restart}>⏮</button> */}
-        <button onClick={togglePlay}>
-          {playing ? "⏸" : "▶️"}
+        <button onClick={playPrev} title="Anterior">
+          <img src={prev} alt="Anterior" className="icon-white" />
         </button>
+
+        {/* Play / Pause */}
+        <button onClick={togglePlay} className="play-btn-circle">
+          <img 
+            src={playing ? pause : play} 
+            alt="Play/Pause" 
+            className="icon-white" 
+            style={{ marginLeft: playing ? "0" : "3px" }} // Ajuste óptico para o ícone de play
+          />
+        </button>
+
+        {/* Próximo */}
+        <button onClick={playNext} title="Próximo">
+          <img src={next} alt="Próximo" className="icon-white" />
+        </button>
+
+        {/* Repetir */}
         <button
           className={repeat ? "active" : ""}
           onClick={() => setRepeat(!repeat)}
           title="Repeat"
         >
-          🔁
+          <img src={repeatIcon} alt="Repetir" className="icon-white" />
         </button>
 
+        {/* Mute */}
         <button
           className={muted ? "active" : ""}
           onClick={toggleMute}
           title="Mute"
         >
-          🔇
+          <img src={mute} alt="Mudo" className="icon-white" />
         </button>
-        {/* Botão Próximo */}
-        <button onClick={playNext} title="Próximo">⏭</button>
       </div>
 
       <div className="volume">

@@ -9,7 +9,6 @@
   color: #fff;
   font-family: system-ui, sans-serif;
   pointer-events: auto;
-  touch-action: manipulation;
 }
 
 .music-glass h3 {
@@ -117,17 +116,17 @@
 
 
 .music-wrapper {
-  /* position: fixed; */
+  position: fixed;
   bottom: 24px;
   right: 24px;
   width: 320px;
-  z-index: 9999;
-  pointer-events: none;
+  z-index: 10000 !important;
+  pointer-events: auto;
 }
 
 .music-glass {
   position: relative;
-  width: 280px;
+  width: 320px;
   max-height: 420px;
 
   border-radius: 16px;
@@ -135,7 +134,12 @@
   backdrop-filter: blur(20px);
 
   overflow: hidden; /* 🔑 ISSO É CRUCIAL */
-  pointer-events: auto;
+  pointer-events: auto !important;
+}
+
+.music-glass, 
+.music-wrapper {
+  touch-action: manipulation;
 }
 
 .music-glow {
@@ -199,9 +203,6 @@
   }
 }
 
-
-
-
 .playlist {
   max-height: 140px;
   overflow-y: auto;
@@ -258,7 +259,7 @@
 }
 
 canvas {
-  touch-action: none;
+  pointer-events: none;
 }
 
 /* Ou no ID/Classe do container pai do Canvas */
@@ -329,4 +330,49 @@ canvas {
   background: #c3cd6a; /* Cor do seu gradiente secundário */
   border-radius: 50%;
   cursor: pointer;
+}
+
+
+/* Estilo para tornar os SVGs Brancos */
+.icon-white {
+  width: 20px;   /* Tamanho dos ícones menores */
+  height: 20px;
+  filter: brightness(0) invert(1); /* 🔑 O segredo para deixar branco */
+  pointer-events: none; /* Evita que o clique pegue na imagem em vez do botão */
+  opacity: 0.9;
+  transition: transform 0.2s ease;
+}
+
+/* Ajuste específico para o botão de Play principal */
+.play-btn-circle {
+  width: 50px !important;
+  height: 50px !important;
+  background: rgba(138, 92, 255, 0.4) !important;
+  border: 1px solid rgba(138, 92, 255, 0.6) !important;
+}
+
+.play-btn-circle .icon-white {
+  width: 24px;
+  height: 24px;
+}
+
+/* Garantir que os botões centralizem os ícones */
+.controls button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  overflow: hidden;
+  transition: all 0.2s ease;
+}
+
+.controls button:hover .icon-white {
+  transform: scale(1.1);
+  opacity: 1;
+}
+
+/* Feedback para botões ativos (Repeat/Mute) */
+.controls button.active {
+  background: rgba(255, 255, 255, 0.25) !important;
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.867);
 }

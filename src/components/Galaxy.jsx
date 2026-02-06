@@ -8,12 +8,12 @@ export default function Galaxy() {
 
   const points = []
   const arms = 3
-  const count = 2000
+  const count = 5000
 
   for (let i = 0; i < count; i++) {
     const arm = i % arms
     const angle = (i / count) * Math.PI * 6 + arm * (Math.PI * 2 / arms)
-    const radius = Math.random() * 150
+    const radius = Math.random() * 500
 
     points.push(
       Math.cos(angle) * radius,
