@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, useCallback } from "react";
 import "./MusicPlayer.css";
 
 
@@ -97,25 +97,43 @@ export default function MusicPlayer() {
 
   /* ---------------- CONTROLS ---------------- */
 
-  const playNext = () => {
+  const playNext = useCallback(() => {
   if (isTransitioning.current) return;
   isTransitioning.current = true;
 
-  // Fade out da música atual
-    fadeTo(0, () => {
-      setCurrent((prev) => (prev + 1) % playlist.length);
-      
-      // Pequeno delay para o state do 'current' atualizar e o áudio carregar o novo src
-      setTimeout(() => {
+  fadeTo(0, () => {
+    setCurrent((prev) => (prev + 1) % playlist.length);
+    setTimeout(() => {
+      if (audioRef.current) {
         audioRef.current.currentTime = 0;
         audioRef.current.play();
-        // Fade in da nova música
+        setPlaying(true);
         fadeTo(muted ? 0 : volume, () => {
           isTransitioning.current = false;
         });
-      }, 100);
-    });
-  };
+      }
+    }, 150);
+  });
+}, [volume, muted]);
+
+const playPrev = () => {
+  if (isTransitioning.current) return;
+  isTransitioning.current = true;
+
+  fadeTo(0, () => {
+    setCurrent((prev) => (prev - 1 + playlist.length) % playlist.length);
+    setTimeout(() => {
+      if (audioRef.current) {
+        audioRef.current.currentTime = 0;
+        audioRef.current.play();
+        setPlaying(true);
+        fadeTo(muted ? 0 : volume, () => {
+          isTransitioning.current = false;
+        });
+      }
+    }, 150);
+  });
+};
 
   const togglePlay = () => {
     if (!playing) {
@@ -264,12 +282,12 @@ export default function MusicPlayer() {
               </div>
             </div>  
       <div className="controls">
-        <button onClick={restart}>⏮</button>
-
+        {/* Botão Anterior */}
+        <button onClick={playPrev} title="Anterior">⏮</button>
+        {/* <button onClick={restart}>⏮</button> */}
         <button onClick={togglePlay}>
           {playing ? "⏸" : "▶️"}
         </button>
-
         <button
           className={repeat ? "active" : ""}
           onClick={() => setRepeat(!repeat)}
@@ -285,6 +303,8 @@ export default function MusicPlayer() {
         >
           🔇
         </button>
+        {/* Botão Próximo */}
+        <button onClick={playNext} title="Próximo">⏭</button>
       </div>
 
       <div className="volume">

@@ -9,6 +9,7 @@
   color: #fff;
   font-family: system-ui, sans-serif;
   pointer-events: none;
+  touch-action: manipulation;
 }
 
 .music-glass h3 {
@@ -35,6 +36,11 @@
   font-size: 18px;
   color: white;
   transition: 0.2s;
+}
+
+.play-btn {
+  background: rgba(138, 92, 255, 0.3) !important;
+  border: 1px solid rgba(138, 92, 255, 0.5) !important;
 }
 
 .controls button:hover {
