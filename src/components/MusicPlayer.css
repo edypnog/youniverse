@@ -8,7 +8,7 @@
   border: 1px solid rgba(255, 255, 255, 0.2);
   color: #fff;
   font-family: system-ui, sans-serif;
-  pointer-events: none;
+  pointer-events: auto;
   touch-action: manipulation;
 }
 
@@ -121,7 +121,7 @@
   bottom: 24px;
   right: 24px;
   width: 320px;
-  z-index: 40;
+  z-index: 9999;
   pointer-events: none;
 }
 
