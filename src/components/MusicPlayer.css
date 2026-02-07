@@ -177,50 +177,59 @@
 }
 
 /* 📱 MOBILE */
+/* 📱 MOBILE - Ajustado para não quebrar */
 @media (max-width: 480px) {
   .music-wrapper {
-    bottom: 12px;
-    right: 12px;
+    bottom: 15px;
+    right: 15px;
+    left: 15px; /* Centraliza melhor em telas muito pequenas */
+    width: auto; /* Permite que o wrapper use a largura do conteúdo */
+    display: flex;
+    justify-content: flex-end;
   }
 
   .music-glass {
-    width: 220px;
-    padding: 12px;
-    border-radius: 14px;
-  }
-
-  .music-glow {
-    inset: -4px;
-    filter: blur(14px);
+    width: 280px; /* Aumentado de 220px para 280px para caber os botões */
+    padding: 14px;
+    border-radius: 16px;
+    max-height: 85vh; /* Evita que saia da tela em celulares baixos */
   }
 
   .music-glass h3 {
-    font-size: 12px;
+    font-size: 13px;
+    max-width: 160px; /* Evita que o título empurre os botões do header */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .controls {
-    gap: 10px;
-    margin-bottom: 8px;
+    gap: 8px; /* Reduzido para caber todos na mesma linha */
+    margin-bottom: 10px;
   }
 
   .controls button {
-    width: 34px;
-    height: 34px;
-    font-size: 14px;
+    width: 36px; /* Tamanho otimizado para toque e espaço */
+    height: 36px;
   }
 
-  .volume {
+  .play-btn-circle {
+    width: 44px !important;
+    height: 44px !important;
+  }
+
+  .speed-row {
     gap: 6px;
-    margin-top: 6px;
+  }
+
+  .speed-row button {
+    padding: 4px 8px;
+    font-size: 0.65rem;
+    flex: 1; /* Faz os 3 botões dividirem o espaço igualmente */
   }
 
   .playlist {
-    max-height: 90px;
-  }
-
-  .playlist li {
-    font-size: 12px;
-    padding: 4px 6px;
+    max-height: 100px; /* Um pouco menor no mobile */
   }
 }
 
@@ -429,4 +438,44 @@ canvas {
   background: #9d8209; /* Cor roxa/azul que você já usa no seek bar */
   border-color: #efff5c;
   box-shadow: 0 0 10px rgba(250, 255, 92, 0.5);
+}
+
+/* Container das barrinhas */
+.visualizer-container {
+  display: flex;
+  align-items: flex-end;
+  /* Faz as barras ocuparem exatamente a largura do player */
+  width: 310px; 
+  height: 50px;
+  gap: 2px; /* Espaço mínimo entre elas */
+  margin-bottom: -2px; /* "Cola" na borda da caixa */
+  pointer-events: none;
+  z-index: 1;
+}
+
+.v-bar {
+  flex: 1; /* Faz cada barra dividir o espaço igualmente */
+  border-radius: 2px 2px 0 0;
+  transition: height 0.15s ease-out, background 0.15s ease;
+  backdrop-filter: blur(2px); /* Efeito de vidro nas barrinhas */
+}
+
+/* Ajuste do Music Wrapper para acomodar as barras em cima */
+.music-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* 📱 AJUSTES MOBILE ESPECÍFICOS */
+@media (max-width: 480px) {
+  .visualizer-container {
+    width: 250px; /* Mesma largura que definimos para o glass no mobile */
+    height: 35px;
+    gap: 1px;
+  }
+  
+  .v-bar {
+    border-radius: 1px 1px 0 0;
+  }
 }

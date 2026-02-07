@@ -1,42 +1,54 @@
 import { useState, useEffect, useRef } from "react";
 
 export default function useAudioPulse(audioRef) {
-  const [pulse, setPulse] = useState(0);
+  // Agora retornamos um objeto com grave e agudo
+  const [pulse, setPulse] = useState({ bass: 0, treble: 0 });
+  
   const analyserRef = useRef(null);
   const dataArrayRef = useRef(null);
   const animationRef = useRef(null);
-  const lastPulse = useRef(0); // Para suavizar a queda do pulso
+  
+  // Refs para suavização independente
+  const lastBass = useRef(0);
+  const lastTreble = useRef(0);
 
   useEffect(() => {
     const update = () => {
       if (analyserRef.current && dataArrayRef.current) {
         analyserRef.current.getByteFrequencyData(dataArrayRef.current);
 
-        // 1. FOCO NOS GRAVES (BASS)
-        // Pegamos apenas as primeiras barras da análise (frequências baixas)
-        // Isso isola o bumbo (kick) e o baixo da música.
+        // --- 1. CÁLCULO DOS GRAVES (BASS) ---
         let bassSum = 0;
-        const bassBins = 4; // Analisamos apenas as 4 primeiras frequências
+        const bassBins = 6; // Frequências bem baixas
         for (let i = 0; i < bassBins; i++) {
           bassSum += dataArrayRef.current[i];
         }
-        const bassAvg = bassSum / bassBins;
+        let bassAvg = (bassSum / bassBins / 255) * 1.2;
+        if (bassAvg > 1) bassAvg = 1;
 
-        // 2. SENSIBILIDADE E NORMALIZAÇÃO
-        // Convertemos para 0 a 1 e damos um "boost" na sensibilidade
-        let targetPulse = (bassAvg / 255) * 1.2; 
-        if (targetPulse > 1) targetPulse = 1;
+        // Suavização do Grave
+        if (bassAvg > lastBass.current) lastBass.current = bassAvg;
+        else lastBass.current *= 0.88;
 
-        // 3. SUAVIZAÇÃO (SMOOTHING)
-        // Se o novo pulso for maior que o anterior, ele sobe rápido (ataque).
-        // Se for menor, ele desce devagar (decay), evitando o efeito "tremido".
-        if (targetPulse > lastPulse.current) {
-          lastPulse.current = targetPulse;
-        } else {
-          lastPulse.current *= 0.85; // Controla a velocidade da queda (suavidade)
+        // --- 2. CÁLCULO DOS AGUDOS (TREBLE/MID) ---
+        let trebleSum = 0;
+        // Pegamos frequências mais altas (do meio para o fim do array)
+        const startBin = 15; 
+        const endBin = 40;
+        for (let i = startBin; i < endBin; i++) {
+          trebleSum += dataArrayRef.current[i];
         }
+        let trebleAvg = (trebleSum / (endBin - startBin) / 255) * 2.0; // Boost no agudo pois ele é mais fraco
+        if (trebleAvg > 1) trebleAvg = 1;
 
-        setPulse(lastPulse.current);
+        // Suavização do Agudo (mais rápida para ser frenética)
+        if (trebleAvg > lastTreble.current) lastTreble.current = trebleAvg;
+        else lastTreble.current *= 0.82;
+
+        setPulse({
+          bass: lastBass.current,
+          treble: lastTreble.current
+        });
       }
       animationRef.current = requestAnimationFrame(update);
     };
@@ -48,9 +60,8 @@ export default function useAudioPulse(audioRef) {
       const source = audioContext.createMediaElementSource(audioRef.current);
       const analyser = audioContext.createAnalyser();
       
-      // fftSize 128 ou 256 dá uma precisão melhor para graves
-      analyser.fftSize = 128; 
-      analyser.smoothingTimeConstant = 0.4; // Ajuda o próprio analyser a ser menos brusco
+      analyser.fftSize = 256; // Aumentei um pouco para ter mais divisões de agudo
+      analyser.smoothingTimeConstant = 0.3;
 
       source.connect(analyser);
       analyser.connect(audioContext.destination);

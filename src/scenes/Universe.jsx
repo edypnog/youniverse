@@ -166,7 +166,7 @@ export default function Universe() {
           enableDamping
           dampingFactor={0.08}
           rotateSpeed={0.8} // Reduzi um pouco para ficar mais suave no mobile
-          zoomSpeed={1.2}
+          zoomSpeed={1.6}
 
           autoRotate={true}         // Ativa o giro automático
           autoRotateSpeed={0.5}     // Velocidade do giro (0.5 a 1.0 é o ideal para espaço)

@@ -71,7 +71,8 @@ export default function MusicPlayer() {
 
   const [minimized, setMinimized] = useState(false)
 
-  const pulse = useAudioPulse(audioRef)
+  // const pulse = useAudioPulse(audioRef)
+  const { bass, treble } = useAudioPulse(audioRef);
 
   const [speed, setSpeed] = useState(1.0); // 1.0 é o normal
 
@@ -320,21 +321,48 @@ const playPrev = () => {
 
   return (
     <div className="music-wrapper">
-      <div
+      {/* <div
         className="music-glow"
         style={{
-          boxShadow: `
-            /* Brilho Interno (mais suave e esbranquiçado) */
-            0 0 ${10 + pulse * 30}px 2px rgba(255, 240, 180, ${0.2 + pulse * 0.5}), 
-            
-            /* Brilho Externo (Grande espalhamento) */
-            0 0 ${40 + pulse * 120}px 1px rgba(255, 200, 50, ${0.1 + pulse * 0.3})
-          `,
-          border: `${1 + pulse * 2}px solid rgba(255, 255, 255, ${0.05 + pulse * 0.2})`,
-          opacity: 0.1 + pulse * 0.3,
-          transform: `scale(${1 + pulse * 0.005})`,
+          boxShadow: `0 0 ${20 + bass * 50}px rgba(255, 230, 100, ${0.1 + bass * 0.4})`,
+          opacity: 0.2 + bass * 0.5,
         }}
-      />
+      /> */}
+
+      {/* 📊 BARRINHAS ESPALHADAS E TRANSPARENTES */}
+      <div className="visualizer-container">
+        {[...Array(30)].map((_, i) => {
+          // Alternamos: uma barra Bass, duas Treble
+          const isBassBar = i % 3 === 0;
+          const currentPulse = isBassBar ? bass : treble;
+          
+          // Altura baseada na batida real de cada frequência
+          const seed = (Math.sin(i * 0.9) + 1) / 2;
+          const barHeight = 4 + currentPulse * (15 + seed * 25);
+
+          return (
+            <div
+              key={i}
+              className={`v-bar ${isBassBar ? "bass" : "treble"}`}
+              style={{
+                height: `${barHeight}px`,
+                background: isBassBar
+                  ? `rgba(244, 255, 92, ${0.1 + currentPulse * 0.7})` // Amarelo Grave
+                  : `rgba(92, 220, 255, ${0.1 + currentPulse * 0.6})`, // Azul Agudo
+                
+                boxShadow: `0 0 10px ${
+                  isBassBar 
+                    ? `rgba(244, 255, 92, ${currentPulse * 0.5})` 
+                    : `rgba(92, 220, 255, ${currentPulse * 0.4})`
+                }`,
+                flex: 1
+              }}
+            />
+          );
+        })}
+      </div>
+
+
       <div
         className="music-glass"
       >
