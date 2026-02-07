@@ -14,29 +14,33 @@ import useAudioPulse from "../hooks/useAudioPulse"
 
 
 const playlist = [
-  { title: "wave", file: "/music/Wave.mp3" },
   { title: "altar", file: "/music/altar.mp3" },
   { title: "suas linhas", file: "/music/suaslinhas.mp3" },
+  { title: "te vivo", file: "/music/tevivo.mp3" },
   { title: "light", file: "/music/light.mp3" },
-  { title: "good days", file: "/music/gooddays.mp3" },
   { title: "escape", file: "/music/escape.mp3" },
   { title: "nervous", file: "/music/nervous.mp3" },
-  { title: "over 85", file: "/music/over85.mp3" },
-  { title: "te vivo", file: "/music/tevivo.mp3" },
+  { title: "folded", file: "/music/folded.mp3" },
+  { title: "um amor puro", file: "/music/umamorpuro.mp3" },
   { title: "snooze", file: "/music/snooze.mp3" },
   { title: "butterflies", file: "/music/butterflies.mp3" },
-  { title: "saturn", file: "/music/Saturn.mp3" },
-  { title: "somebody", file: "/music/SOMEBODY.mp3" },
-  { title: "my obsession", file: "/music/myobsession.mp3" },
+  { title: "over 85", file: "/music/over85.mp3" },
+  { title: "wave", file: "/music/Wave.mp3" },
+  { title: "amaresó", file: "/music/amareso.mp3" },
+  { title: "nobody gets me", file: "/music/nobodygetsme.mp3" },
+  { title: "incondicional", file: "/music/incondicional.mp3" },
+  { title: "paraíso", file: "/music/paraiso.mp3" },
+  { title: "intentions", file: "/music/intentions.mp3" },
+  { title: "good days", file: "/music/gooddays.mp3" },
+  { title: "after hours", file: "/music/afterhours.mp3" },
+  { title: "my you", file: "/music/myyou.mp3" },
+  { title: "why don't you stay", file: "/music/whydontyoustay.mp3" },
+  { title: "tanto faz", file: "/music/tantofaz.mp3" },
   { title: "mine", file: "/music/mine.mp3" },
   { title: "tainted", file: "/music/tainted.mp3" },
-  { title: "paraíso", file: "/music/paraiso.mp3" },
-  { title: "um amor puro", file: "/music/umamorpuro.mp3" },
-  { title: "after hours", file: "/music/afterhours.mp3" },
-  { title: "why don't you stay", file: "/music/whydontyoustay.mp3" },
-  { title: "my you", file: "/music/myyou.mp3" },
-  { title: "intentions", file: "/music/intentions.mp3" },
-  { title: "nobody gets me", file: "/music/nobodygetme.mp3" },
+  { title: "somebody", file: "/music/SOMEBODY.mp3" },
+  { title: "my obsession", file: "/music/myobsession.mp3" },
+  { title: "saturn", file: "/music/Saturn.mp3" },
 ]
 
 
@@ -69,7 +73,49 @@ export default function MusicPlayer() {
 
   const pulse = useAudioPulse(audioRef)
 
+  const [speed, setSpeed] = useState(1.0); // 1.0 é o normal
 
+  // ... seus outros estados
+  const [rainActive, setRainActive] = useState(false);
+  const rainAudioRef = useRef(null); // Começamos como null
+
+  // 1. Efeito para CRIAR o áudio apenas uma vez (no mount)
+  useEffect(() => {
+    // Criamos o objeto apenas se ele não existir
+    if (!rainAudioRef.current) {
+      rainAudioRef.current = new Audio("/music/rain.mp3");
+      rainAudioRef.current.loop = true;
+    }
+
+    // Função de limpeza (cleanup) para quando você fechar o app/página
+    return () => {
+      if (rainAudioRef.current) {
+        rainAudioRef.current.pause();
+        rainAudioRef.current.src = ""; // Libera o arquivo da memória
+        rainAudioRef.current = null;
+      }
+    };
+  }, []);
+
+  // 2. Efeito para CONTROLAR o Play/Pause quando o botão é clicado
+  useEffect(() => {
+    const rain = rainAudioRef.current;
+    if (!rain) return;
+
+    if (rainActive) {
+      rain.volume = 0.3;
+      // O play() é uma promessa, tratamos o erro de interação do usuário
+      rain.play().catch((err) => {
+        console.warn("Áudio bloqueado pelo navegador. Clique em algo na tela primeiro.");
+        setRainActive(false);
+      });
+    } else {
+      rain.pause();
+    }
+  }, [rainActive]);
+
+  // Função para alternar o estado
+  const toggleRain = () => setRainActive((prev) => !prev);
 
   /* ---------------- SYNC AUDIO ---------------- */
 
@@ -82,6 +128,25 @@ export default function MusicPlayer() {
     if (!audioRef.current) return;
     audioRef.current.volume = muted ? 0 : volume;
   }, [volume, muted]);
+
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.playbackRate = speed;
+      
+      // 🔑 O SEGREDO: false faz a voz ficar grossa no slowed e fina no speed up
+      audioRef.current.preservesPitch = false; 
+      audioRef.current.mozPreservesPitch = false;
+      audioRef.current.webkitPreservesPitch = false;
+    }
+  }, [speed, current]); // Reaplica quando a música muda ou a velocidade muda
+
+  // Função para alternar entre Normal -> Slowed -> Sped Up
+  const cycleSpeed = () => {
+    if (speed === 1.0) setSpeed(0.85);      // Slowed (Estética Vaporwave)
+    else if (speed === 0.85) setSpeed(1.25); // Speed Up (Estética Nightcore)
+    else setSpeed(1.0);                     // Volta ao Normal
+  };
+
 
   /* ---------------- LOCAL STORAGE ---------------- */
 
@@ -170,6 +235,8 @@ const playPrev = () => {
   //   setPlaying(true);
   // };
 
+  
+
   const toggleMute = () => {
     if (!muted) {
       lastVolume.current = volume;
@@ -257,12 +324,15 @@ const playPrev = () => {
         className="music-glow"
         style={{
           boxShadow: `
-          0 0 ${2 + pulse * 10}px rgba(255, 230, 0, ${0.3 + pulse * 0.7}), /* Amarelo Interno */
-          0 0 ${3 + pulse * 70}px rgba(0, 110, 255, ${0.2 + pulse * 0.6})  /* Azul Externo */
+            /* Brilho Interno (mais suave e esbranquiçado) */
+            0 0 ${10 + pulse * 30}px 2px rgba(255, 240, 180, ${0.2 + pulse * 0.5}), 
+            
+            /* Brilho Externo (Grande espalhamento) */
+            0 0 ${40 + pulse * 120}px 1px rgba(255, 200, 50, ${0.1 + pulse * 0.3})
           `,
-          border: `${1 + pulse * 2}px solid rgba(255, 255, 255, ${0.1 + pulse * 0.4})`,
-          opacity: 0.6 + pulse * 0.4,
-          transform: `scale(${1 + pulse * 0.003})`,
+          border: `${1 + pulse * 2}px solid rgba(255, 255, 255, ${0.05 + pulse * 0.2})`,
+          opacity: 0.1 + pulse * 0.3,
+          transform: `scale(${1 + pulse * 0.005})`,
         }}
       />
       <div
@@ -273,6 +343,14 @@ const playPrev = () => {
 
         <div className="player-header">
         <h3>{playlist[current].title}</h3>
+
+        <button
+          className={`rain-btn ${rainActive ? "active" : ""}`}
+          onClick={toggleRain}
+          title="Som de Chuva"
+        >
+          {rainActive ? "🌧️" : "☁️"}
+        </button>
 
         <button
           className="minimize-btn"
@@ -295,7 +373,7 @@ const playPrev = () => {
                 value={currentTime}
                 onChange={handleSeek}
                 style={{
-                  background: `linear-gradient(to right, #8a5cff ${(currentTime / duration) * 100}%, rgba(255,255,255,0.1) ${(currentTime / duration) * 100}%)`
+                  background: `linear-gradient(to right, #f4ff5c ${(currentTime / duration) * 100}%, rgba(255,255,255,0.1) ${(currentTime / duration) * 100}%)`
                 }}
               />
               <div className="time-info">
@@ -340,6 +418,30 @@ const playPrev = () => {
           title="Mute"
         >
           <img src={mute} alt="Mudo" className="icon-white" />
+        </button>
+      </div>
+
+      {/* NOVA LINHA DE VELOCIDADE ABAIXO DOS CONTROLES */}
+      <div className="speed-row">
+        <button 
+          className={speed === 0.85 ? "active" : ""} 
+          onClick={() => setSpeed(speed === 0.85 ? 1.0 : 0.85)}
+        >
+          Slowed
+        </button>
+
+        <button 
+          className={speed === 1.0 ? "active" : ""} 
+          onClick={() => setSpeed(1.0)}
+        >
+          Normal
+        </button>
+
+        <button 
+          className={speed === 1.25 ? "active" : ""} 
+          onClick={() => setSpeed(speed === 1.25 ? 1.0 : 1.25)}
+        >
+          Sped Up
         </button>
       </div>
 

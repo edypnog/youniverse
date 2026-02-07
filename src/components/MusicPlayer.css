@@ -38,8 +38,8 @@
 }
 
 .play-btn {
-  background: rgba(138, 92, 255, 0.3) !important;
-  border: 1px solid rgba(138, 92, 255, 0.5) !important;
+  background: rgba(255, 252, 92, 0.3) !important;
+  border: 1px solid rgba(244, 255, 92, 0.5) !important;
 }
 
 .controls button:hover {
@@ -84,13 +84,13 @@
 }
 
 .controls button.active {
-  background: rgba(120, 140, 255, 0.35);
-  box-shadow: 0 0 10px rgba(120, 140, 255, 0.6);
+  background: rgba(251, 255, 120, 0.35);
+  box-shadow: 0 0 10px rgba(255, 255, 120, 0.6);
 }
 
 .controls button.active {
-  background: rgba(120, 140, 255, 0.35);
-  box-shadow: 0 0 12px rgba(120, 140, 255, 0.6);
+  background: rgba(242, 255, 120, 0.35);
+  box-shadow: 0 0 12px rgba(235, 255, 120, 0.6);
 }
 
 .volume {
@@ -114,19 +114,40 @@
   cursor: pointer;
 }
 
+.rain-btn {
+  background: transparent;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: transform 0.3s ease, filter 0.3s ease;
+  padding: 5px;
+  line-height: 1;
+  filter: grayscale(1) opacity(0.6); /* Fica cinza quando desligado */
+}
+
+.rain-btn.active {
+  filter: grayscale(0) opacity(1); /* Colorido quando ligado */
+  transform: scale(1.1);
+  text-shadow: 0 0 10px rgba(0, 162, 255, 0.5);
+}
+
+.rain-btn:hover {
+  filter: grayscale(0) opacity(0.9);
+}
+
 
 .music-wrapper {
   position: fixed;
   bottom: 24px;
   right: 24px;
-  width: 320px;
+  width: 330px;
   z-index: 10000 !important;
   pointer-events: auto;
 }
 
 .music-glass {
   position: relative;
-  width: 320px;
+  width: 330px;
   max-height: 420px;
 
   border-radius: 16px;
@@ -221,7 +242,7 @@
 .playlist::-webkit-scrollbar-thumb {
   background: linear-gradient(
     180deg,
-    rgba(138,92,255,0.6),
+    rgba(255, 247, 92, 0.6),
     rgba(195, 205, 106, 0.9)
   );
   border-radius: 999px;
@@ -230,14 +251,14 @@
 .playlist::-webkit-scrollbar-thumb:hover {
   background: linear-gradient(
     180deg,
-    rgba(68, 43, 131, 0.9),
+    rgba(131, 125, 43, 0.9),
     rgba(218, 225, 154, 0.9)
   );
 }
 
 .playlist {
   scrollbar-width: thin;
-  scrollbar-color: rgba(68, 43, 131, 0.9) transparent;
+  scrollbar-color: rgba(206, 225, 62, 0.9) transparent;
 }
 
 .playlist li {
@@ -253,8 +274,8 @@
 .playlist li.active {
   background: linear-gradient(
     90deg,
-    rgba(138,92,255,0.35),
-    rgba(195, 205, 106, 0.25)
+    rgba(255, 252, 92, 0.35),
+    rgba(106, 109, 205, 0.25)
   );
 }
 
@@ -293,7 +314,7 @@ canvas {
   height: 12px;
   background: #fff;
   border-radius: 50%;
-  box-shadow: 0 0 15px rgba(138, 92, 255, 1), 0 0 5px white;
+  box-shadow: 0 0 15px rgb(250, 255, 92), 0 0 5px white;
   cursor: pointer;
   border: none;
   transition: transform 0.2s;
@@ -347,8 +368,8 @@ canvas {
 .play-btn-circle {
   width: 50px !important;
   height: 50px !important;
-  background: rgba(138, 92, 255, 0.4) !important;
-  border: 1px solid rgba(138, 92, 255, 0.6) !important;
+  background: rgba(255, 244, 92, 0.4) !important;
+  border: 1px solid rgba(250, 255, 92, 0.6) !important;
 }
 
 .play-btn-circle .icon-white {
@@ -375,4 +396,37 @@ canvas {
 .controls button.active {
   background: rgba(255, 255, 255, 0.25) !important;
   box-shadow: 0 0 15px rgba(255, 255, 255, 0.867);
+}
+
+
+/* Container da nova linha de velocidade */
+.speed-row {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 10px; /* Espaço abaixo dos controles principais */
+  margin-bottom: 15px;
+}
+
+.speed-row button {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: white;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.speed-row button:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.speed-row button.active {
+  background: #9d8209; /* Cor roxa/azul que você já usa no seek bar */
+  border-color: #efff5c;
+  box-shadow: 0 0 10px rgba(250, 255, 92, 0.5);
 }
