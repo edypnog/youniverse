@@ -15,6 +15,7 @@ import useAudioPulse from "../hooks/useAudioPulse"
 
 const playlist = [
   { title: "wave", file: "/music/Wave.mp3" },
+  { title: "altar", file: "/music/altar.mp3" },
   { title: "suas linhas", file: "/music/suaslinhas.mp3" },
   { title: "light", file: "/music/light.mp3" },
   { title: "good days", file: "/music/gooddays.mp3" },
@@ -32,6 +33,10 @@ const playlist = [
   { title: "paraíso", file: "/music/paraiso.mp3" },
   { title: "um amor puro", file: "/music/umamorpuro.mp3" },
   { title: "after hours", file: "/music/afterhours.mp3" },
+  { title: "why don't you stay", file: "/music/whydontyoustay.mp3" },
+  { title: "my you", file: "/music/myyou.mp3" },
+  { title: "intentions", file: "/music/intentions.mp3" },
+  { title: "nobody gets me", file: "/music/nobodygetme.mp3" },
 ]
 
 
